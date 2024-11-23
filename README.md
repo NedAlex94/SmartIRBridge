@@ -16,10 +16,25 @@ SmartIRBridge uses an ESP32 to:
 1. Intercept IR signals from the LG Magic Remote.
 2. Convert these signals into MQTT commands over WiFi.
    
-Example use case:
+### Example use case:
 - Pressing **Volume Up** on the Magic Remote sends a command to MQTT.
 - HA listens to the MQTT topic, interprets the command, and uses a separate IR transmitter (I use a Broadlink RM4 on the other side of the room to send commands only) to increase the Denon AVR’s volume.
 - Controlling other devices like Govee lights for turning them on or off using the Magic Remote.
+
+### Components
+IR Receiver (TSOP4838): Receives IR signals from the LG Magic Remote.
+
+- Pinout:
+1. Vout to GPIO 15 on ESP32 (to receive data)
+2. Ground to ESP32 Ground
+3. Vcc to ESP32 3.3V (power)
+
+ESP32 DevKit V1:
+
+- Pinout:
+1. GPIO 15: Reads the IR signal from the IR receiver.
+3. GND: Ground
+4. 3V3: Provide power to the IR receiver.
 
 ### License
 MIT License
