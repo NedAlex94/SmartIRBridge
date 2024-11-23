@@ -1,7 +1,9 @@
 # SmartIRBridge
 
 ### Problem
-I have an old Denon (1908) receiver that still havs great sound for my ears, but it does not play well with my modern LG OLED TV. For instance, I want to control the volume of the Denon AVR with an LG Magic Remote, but that only works for me when connected through optical cable (and, even then, with a delay). However, my TV is connected to the Denon through an HDMI eARC Audio Extractor & Splitter and, through this setup, the Magic Remote refuses to control the volume on the Denon even though the LG's Universal Control Feature say it does.
+I have an old Denon (1908) receiver that still havs great sound for my ears, but it does not play well with my modern LG OLED TV. For instance, I want to control the volume of the Denon AVR with an LG Magic Remote, but that only works for me when connected through optical cable (and, even then, with a delay). 
+
+However, my TV is connected to the Denon through an HDMI eARC Audio Extractor & Splitter and, through this setup, the Magic Remote refuses to control the volume on the Denon even though the LG's Universal Control Feature say it does.
 
 Additionally, I would like to use the unused Magic Remote buttons, which are many, to control other things in the living room (e.g., Govee lights), but the Magic Remote cannot be mapped directly unless you root the TV.
 
