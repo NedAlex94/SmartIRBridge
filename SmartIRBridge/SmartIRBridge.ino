@@ -2,15 +2,13 @@
 
 // Uses IRremote, an MIT Library for IR signal decoding and handling
 // Install it from https://github.com/Arduino-IRremote/Arduino-IRremote
-#include <IRremote.hpp>
-
+#include "ir_handler.h"    
 #include "wps_button.h"    
 #include "wifi_helper.h"  
 #include "light_control.h" 
 #include "globals.h" 
 
 // GPIO pin definitions
-const uint16_t RECV_PIN = 15;
 const uint16_t WPS_BUTTON_PIN = 16;
 const uint16_t LIGHT_PIN = 18;
 
@@ -26,7 +24,8 @@ volatile bool wifiScanning = false; // Definition of wifiScanning
 
 void setup() {
   Serial.begin(115200);         
-  IrReceiver.begin(RECV_PIN);   
+  initIR(); // Initialize IR receiver
+
   Serial.println("IR Receiver is initialized. Waiting for signals...");
   Serial.println("WPS Button initialized. Waiting for input...");
 
@@ -56,22 +55,6 @@ void loop() {
 
   // Continue handling other tasks
   handleIR();
-}
-
-// Function that handles IR processing
-void handleIR() {
-  if (IrReceiver.decode()) {
-    uint32_t decodedData = IrReceiver.decodedIRData.decodedRawData;
-
-    if (decodedData == 0) {
-      Serial.println("Repeat Signal Detected");
-    } else {
-      Serial.print("Decoded Data: ");
-      Serial.println(decodedData, HEX);
-    }
-
-    IrReceiver.resume(); // Resume the IR receiver for the next signal
-  }
 }
 
 // FreeRTOS task for Wi-Fi scanning

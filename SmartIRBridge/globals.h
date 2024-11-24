@@ -5,4 +5,5 @@
 
 extern volatile bool wifiScanning; // Declaration of wifiScanning
 
+
 #endif // GLOBALS_H

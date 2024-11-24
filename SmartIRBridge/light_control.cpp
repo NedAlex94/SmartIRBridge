@@ -2,7 +2,6 @@
 
 #include "light_control.h"
 #include "globals.h"    // Include the globals header
-#include <Arduino.h>
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 
