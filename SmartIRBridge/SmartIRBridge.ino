@@ -7,31 +7,26 @@
 #include "wps_button.h"    
 #include "wifi_helper.h"  
 #include "light_control.h" 
+#include "globals.h" 
 
-// GPIO pin where the IR receiver's Vout is connected
+// GPIO pin definitions
 const uint16_t RECV_PIN = 15;
-
-// GPIO pin for the WPS button
 const uint16_t WPS_BUTTON_PIN = 16;
-
-// GPIO pin for the light
 const uint16_t LIGHT_PIN = 18;
 
-// Create WPSButton obj
+// Create objects
 WPSButton wpsButton(WPS_BUTTON_PIN);
-
-// Create LightControl obj for GPIO 18
 LightControl light(LIGHT_PIN);
 
 // Task handle for Wi-Fi scanning
 TaskHandle_t wifiScanTaskHandle = NULL;
 
-// Flag indicates Wi-Fi scanning in progress
-volatile bool wifiScanning = false;
+// Flag to indicate Wi-Fi scanning in progress
+volatile bool wifiScanning = false; // Definition of wifiScanning
 
 void setup() {
-  Serial.begin(115200);         // Initialize serial communication
-  IrReceiver.begin(RECV_PIN);   // Start the IR receiver on the specified pin
+  Serial.begin(115200);         
+  IrReceiver.begin(RECV_PIN);   
   Serial.println("IR Receiver is initialized. Waiting for signals...");
   Serial.println("WPS Button initialized. Waiting for input...");
 
@@ -48,13 +43,13 @@ void loop() {
 
       // Start the Wi-Fi scanning task
       xTaskCreatePinnedToCore(
-        wifiScanTask,      // Task function
-        "WiFiScanTask",    // Name of the task
-        4096,              // Stack size in bytes
-        NULL,              // Task input parameter
-        1,                 // Priority of the task
-        &wifiScanTaskHandle, // Task handle
-        0                  // Core to run the task
+        wifiScanTask,           // Task function
+        "WiFiScanTask",         // Name of the task
+        4096,                   // Stack size in bytes
+        NULL,                   // Task input parameter
+        1,                      // Priority of the task
+        &wifiScanTaskHandle,    // Task handle
+        0                       // Core to run the task
       );
     }
   }
@@ -62,7 +57,6 @@ void loop() {
   // Continue handling other tasks
   handleIR();
 }
-
 
 // Function that handles IR processing
 void handleIR() {
@@ -89,7 +83,7 @@ void wifiScanTask(void *parameter) {
         ledBlinkTask,             // Blinking task function
         "LEDBlinkTask",           // Name of the task
         2048,                     // Stack size in bytes
-        NULL,                     // Task input parameter
+        &light,                   // Task input parameter (pointer to LightControl)
         1,                        // Priority of the task
         NULL,                     // Task handle not needed
         1                         // Core to run the task (can be 0 or 1)
@@ -105,17 +99,3 @@ void wifiScanTask(void *parameter) {
     // Delete this Wi-Fi scan task
     vTaskDelete(NULL);
 }
-
-
-
-
-void ledBlinkTask(void *parameter) {
-  while (wifiScanning) {
-    light.turnOn();
-    vTaskDelay(250 / portTICK_PERIOD_MS);  // LED on for 250ms
-    light.turnOff();
-    vTaskDelay(250 / portTICK_PERIOD_MS);  // LED off for 250ms
-  }
-  vTaskDelete(NULL);  // Deletes the task when `wifiScanning` is false
-}
-
