@@ -8,6 +8,7 @@
 #include "wifi_helper.h"  
 #include "light_control.h" 
 #include "globals.h" 
+#include "web_server.h"
 
 // Create objects
 LightControl light;  
@@ -18,16 +19,31 @@ WPSButton wpsButton;
 volatile bool wifiScanning = false; // Definition of wifiScanning
 
 void setup() {
-    Serial.begin(115200);         
+    Serial.begin(115200);  
+    Serial.println("Debug: Setup started.");
+       
     initIR(); // Initialize IR receiver
+
+    // Start Access Point for configuration
+    startAccessPoint();
+
+    // Initialize the web server
+    initWebServer();
+
 
     Serial.println("WPS Button initialized. Waiting for input...");
 
     // Light starts off by default
     light.turnOff();
+
+    Serial.println("Debug: Setup ended.");
+
 }
 
 void loop() {
+
+    handleWebServer();
+
     // Handle WPS button
     if (wpsButton.isPressed()) {
         if (!wifiScanning) {

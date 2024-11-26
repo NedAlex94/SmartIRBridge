@@ -82,3 +82,24 @@ void scanAndPrintWiFiNetworks() {
     // Clear the scan results
     WiFi.scanDelete();
 }
+
+
+void startAccessPoint() {
+    const char* apSSID = "ESP32_Config";       // Access Point SSID
+    const char* apPassword = "12345678";       // Access Point temporary password
+
+    Serial.println("Starting Access Point...");
+    if (WiFi.softAP(apSSID, apPassword)) {
+        Serial.println("Access Point started successfully!");
+    } else {
+        Serial.println("Failed to start Access Point.");
+        return; // Exit if AP fail to start
+    }
+
+    Serial.print("SSID: ");
+    Serial.println(apSSID);
+    Serial.print("Password: ");
+    Serial.println(apPassword);
+    Serial.print("IP Address: ");
+    Serial.println(WiFi.softAPIP());
+}

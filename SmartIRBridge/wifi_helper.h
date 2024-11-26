@@ -14,4 +14,8 @@ void wifiScanTask(void *parameter);
 // Initiate the Wi-Fi scan task
 void startWiFiScanTask();
 
+// Start an access point
+void startAccessPoint();
+
+
 #endif // WIFI_HELPER_H
