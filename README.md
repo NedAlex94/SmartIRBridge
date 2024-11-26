@@ -1,4 +1,4 @@
-# SmartIRBridge
+# Smart IR Bridge
 
 ### Problem
 I have an old Denon (1908) receiver that still havs great sound for my ears, but it does not play well with my modern LG OLED TV. For instance, I want to control the volume of the Denon AVR with an LG Magic Remote, but that only works for me when connected through optical cable (and, even then, with a delay). 
