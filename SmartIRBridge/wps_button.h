@@ -7,12 +7,11 @@
 
 class WPSButton {
   public:
-    WPSButton(int pin);       // Constructor to initialize the button pin
-    bool isPressed();         // Function to check if the button is pressed
-    void checkAndPrint();     // Function to print "Yes" or "No"
+    WPSButton();            // Default constructor
+    bool isPressed();       // Check if the button is pressed
+    void checkAndPrint();   // Print "Yes" or "No" based on button state
   private:
-    int buttonPin;            // Pin connected to the button
-    bool lastButtonState;     // Stores the last state of the button
+    bool lastButtonState;   // Stores the last button state
 };
 
 #endif

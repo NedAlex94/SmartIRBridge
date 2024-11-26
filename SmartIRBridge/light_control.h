@@ -5,17 +5,14 @@
 
 #include <Arduino.h>
 
-// Forward declaration of the task function
-void ledBlinkTask(void *parameter);
-
 class LightControl {
-  public:
-    LightControl(int pin);   // Constructor to initialize the light pin
-    void turnOn();           // Function to turn the light on
-    void turnOff();          // Function to turn the light off
-    void blink(int times);   // Function to blink the light 'times' times
-  private:
-    int lightPin;            // Pin connected to the light
+public:
+    LightControl();   // Constructor to initialize the light pin      
+    void turnOn();    // Function to turn the light on
+    void turnOff();   // Function to turn the light off
+    void blink(int times); // Function to blink the light 'times' times
 };
+
+void ledBlinkTask(void *parameter);
 
 #endif // LIGHT_CONTROL_H

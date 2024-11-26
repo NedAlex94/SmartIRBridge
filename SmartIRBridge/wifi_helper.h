@@ -3,11 +3,15 @@
 #ifndef WIFI_HELPER_H
 #define WIFI_HELPER_H
 
-// WiFi.h is a standard WiFi library for ESP32 devices
-// Part of the official ESP32 support package by Espressif Systems.
 #include <WiFi.h>
 
-// Function declaration
+// Function to perform Wi-Fi scan and print networks
 void scanAndPrintWiFiNetworks();
 
-#endif
+// FreeRTOS task function for Wi-Fi scanning
+void wifiScanTask(void *parameter);
+
+// Initiate the Wi-Fi scan task
+void startWiFiScanTask();
+
+#endif // WIFI_HELPER_H
