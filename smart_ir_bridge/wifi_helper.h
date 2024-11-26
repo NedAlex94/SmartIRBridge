@@ -6,7 +6,7 @@
 #include <WiFi.h>
 
 // Function to perform Wi-Fi scan and print networks
-void scanAndPrintWiFiNetworks();
+String scanAndPrintWiFiNetworks();
 
 // FreeRTOS task function for Wi-Fi scanning
 void wifiScanTask(void *parameter);

@@ -36,5 +36,8 @@ ESP32 DevKit V1:
 3. GND: Ground
 4. 3V3: Provide power to the IR receiver.
 
+## `python_sandbox` Folder
+The `python_sandbox` folder is a utility area for rapid testing and prototyping certain things, like the web UI, during development without needing to compile and upload firmware to the ESP32 every time.
+
 ### License
 MIT License

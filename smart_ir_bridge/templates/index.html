@@ -1,0 +1,38 @@
+<!-- index.html -->
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ESP32 Config</title>
+</head>
+<body>
+    <h1>ESP32 Config Server</h1>
+
+    <!-- Scan Wi-Fi Button -->
+    <form method="POST" action="/scan">
+        <button type="submit">Scan Wi-Fi</button>
+    </form>
+
+    <!-- Display Scan Results -->
+    {% if scan_results %}
+        <h2>Scan Results:</h2>
+        <form method="POST" action="/connect">
+            <div>
+                <label for="wifi_networks">Select the Wi-Fi you want the ESP32 to connect to:</label>
+            </div>
+            <select id="wifi_networks" name="ssid" required>
+                {% for network in scan_results %}
+                    <option>{{ network }}</option>
+                {% endfor %}
+            </select>
+            <br><br>
+            <div>
+                <label for="password">Enter Password:</label>
+            </div>
+            <input type="password" id="password" name="password" required>
+            <br><br>
+            <button type="submit">Connect</button>
+        </form>
+    {% endif %}
+</body>
+</html>

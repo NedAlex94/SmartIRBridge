@@ -53,35 +53,51 @@ void startWiFiScanTask() {
     }
 }
 
-
 /**
- * Scans and prints details of available Wi-Fi networks.
+ * Local function for handling Wi-Fi scan results.
+ * @param networkCount Number of networks found.
+ * @return String containing HTML options for available networks.
  */
-void scanAndPrintWiFiNetworks() {
-    WiFi.mode(WIFI_STA); // Ensure the ESP32 is in "station" mode
-    Serial.println("Scanning for WiFi networks...");
-
-    // Perform WiFi network scan
-    int networkCount = WiFi.scanNetworks();
-
-    // Print the number of networks found
-    Serial.print("Number of networks found: ");
-    Serial.println(networkCount);
-
-    // Loop through the networks and print their details
+static String formatWiFiScanResults(int networkCount) {
+    String results = "";
     for (int i = 0; i < networkCount; i++) {
+        results += "<option value=\"" + WiFi.SSID(i) + "\">";
+        results += WiFi.SSID(i) + " (" + String(WiFi.RSSI(i)) + " dBm)";
+        results += "</option>";
+
+        // Print to Serial for debugging
         Serial.print("Network ");
         Serial.print(i + 1);
         Serial.print(": ");
-        Serial.print(WiFi.SSID(i));         // SSID of the network
+        Serial.print(WiFi.SSID(i));
         Serial.print(" (Signal strength: ");
-        Serial.print(WiFi.RSSI(i));         // Signal strength in dBm
+        Serial.print(WiFi.RSSI(i));
         Serial.println(" dBm)");
     }
-
-    // Clear the scan results
-    WiFi.scanDelete();
+    return results;
 }
+
+/**
+ * Perform a Wi-Fi scan and return results formatted as HTML <option> elements.
+ * @return String of HTML options for available networks.
+ */
+String scanAndPrintWiFiNetworks() {
+    Serial.println("Scanning for Wi-Fi networks...");
+
+    // Changed to handle AP and Wi-Fi scanning at the same time
+    // WiFi.scanNetworks(show_hidden, scan_duplicates), so those are set to false
+    int networkCount = WiFi.scanNetworks(false, false);
+    Serial.print("Number of networks found: ");
+    Serial.println(networkCount);
+
+    // Format scan results into HTML options
+    String scanResults = formatWiFiScanResults(networkCount);
+
+    WiFi.scanDelete(); // Clear scan results
+    return scanResults.isEmpty() ? "<option>No networks found</option>" : scanResults;
+}
+
+
 
 
 void startAccessPoint() {
@@ -89,11 +105,16 @@ void startAccessPoint() {
     const char* apPassword = "12345678";       // Access Point temporary password
 
     Serial.println("Starting Access Point...");
+
+    // Set Wi-Fi mode to AP+STA (Access Point + Station)
+    // otherwise the connection to the AP fails on WiFi scan
+    WiFi.mode(WIFI_AP_STA);
+
     if (WiFi.softAP(apSSID, apPassword)) {
         Serial.println("Access Point started successfully!");
     } else {
         Serial.println("Failed to start Access Point.");
-        return; // Exit if AP fail to start
+        return;
     }
 
     Serial.print("SSID: ");
