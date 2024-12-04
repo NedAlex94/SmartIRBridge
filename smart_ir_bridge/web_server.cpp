@@ -3,43 +3,11 @@
 #include "web_server.h"
 #include <WiFi.h>
 #include <WebServer.h>
+#include "wifi_credentials_storer.h"
+#include "index_html.h"
 
 // Initialize the web server on port 80
 WebServer server(80);
-
-
-// Embed the HTML content directly as a string from /templates because I could not be bothered to write it to memory yet.
-// You can test this withotu compiling by running the mininum python server instead.
-const char index_html[] PROGMEM = R"rawliteral(
-<!DOCTYPE html>
-<html>
-<head>
-    <title>ESP32 Config</title>
-</head>
-<body>
-    <h1>ESP32 Config Server</h1>
-    <form method="POST" action="/scan">
-        <button type="submit">Scan Wi-Fi</button>
-    </form>
-    <h2>Scan Results:</h2>
-    <form method="POST" action="/connect">
-        <div>
-            <label for="wifi_networks">Select the Wi-Fi you want the ESP32 to connect to:</label>
-        </div>
-        <select id="wifi_networks" name="ssid" required>
-            %SCAN_RESULTS%
-        </select>
-        <br><br>
-        <div>
-            <label for="password">Enter Password:</label>
-        </div>
-        <input type="password" id="password" name="password" required>
-        <br><br>
-        <button type="submit">Connect</button>
-    </form>
-</body>
-</html>
-)rawliteral";
 
 /**
  * Initialize the web server.
@@ -47,24 +15,75 @@ const char index_html[] PROGMEM = R"rawliteral(
 void initWebServer() {
     // Define the root page
     server.on("/", HTTP_GET, []() {
-        String html = index_html; 
-        html.replace("%SCAN_RESULTS%", "<option>Click 'Scan Wi-Fi' to search</option>");
+        String html = index_html;
+        String content = step1_content;
+        // No scan results available yet so we hide the scan results section
+        content.replace("%DISPLAY%", "none");
+        content.replace("%OPTIONS%", "");
+        html.replace("%CONTENT%", content);
         server.send(200, "text/html", html);
+          
+        server.send(200, "text/plain", "MQTT settings received (not yet processed).");
+
     });
 
-    // Define the scan page. This will be improved in the future becasue it can be clunky.
+    // Define the scan page. This will be improved in the future because it can be clunky.
     server.on("/scan", HTTP_POST, []() {
         String scanResults = scanAndPrintWiFiNetworks(); // Call the helper function in wifi_helper.cpp
         String html = index_html; 
-        html.replace("%SCAN_RESULTS%", scanResults);
+        String content = step1_content;
+        content.replace("%DISPLAY%", "block");
+        content.replace("%OPTIONS%", scanResults);
+        html.replace("%CONTENT%", content);
+        server.send(200, "text/html", html);
+    });
+
+    // Define the connect page
+    server.on("/connect", HTTP_POST, []() {
+        String ssid = server.arg("ssid");
+        String password = server.arg("password");
+
+        WiFi.begin(ssid.c_str(), password.c_str());
+
+        int timeout = 20;
+        while (WiFi.status() != WL_CONNECTED && timeout > 0) {
+            delay(500);
+            Serial.print(".");
+            timeout--;
+        }
+
+        if (WiFi.status() == WL_CONNECTED) {
+            saveWiFiCredentials(ssid, password); // Save credentials
+            Serial.println("\nWi-Fi connected successfully!");
+            Serial.print("IP Address: ");
+            Serial.println(WiFi.localIP());
+
+            // Disable the Access Point and switch to station mode to improve UX and
+            // avoid confusing users (even though the user here is just me.) After all
+            // if connection successful, no need for the AP anymore. Though we should
+            // include a reset option or a fallback if the stored WiFi is not found in X time
+            WiFi.softAPdisconnect(true); // Turn off the Access Point
+            WiFi.mode(WIFI_STA);         // Switch to station mode only
+
+            server.send(200, "text/plain", "Wi-Fi connected successfully. IP: " + WiFi.localIP().toString());
+        } else {
+            Serial.println("\nFailed to connect to Wi-Fi.");
+            server.send(500, "text/plain", "Failed to connect to Wi-Fi. Please try again.");
+        }
+    });
+
+    // Define the MQTT configuration page
+    server.on("/mqtt", HTTP_GET, []() {
+        String html = index_html;
+        // Insert the content for Step 2 (MQTT configuration)
+        html.replace("%CONTENT%", step2_content);
         server.send(200, "text/html", html);
     });
 
     // Start the server
     server.begin();
-    Serial.println("Web server started at http://192.168.4.1");
+    Serial.println("Web server initialized");
 }
-
 
 /**
  * Handle client requests.
@@ -72,5 +91,3 @@ void initWebServer() {
 void handleWebServer() {
     server.handleClient();
 }
-
-

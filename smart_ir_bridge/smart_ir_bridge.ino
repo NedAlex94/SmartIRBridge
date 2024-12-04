@@ -24,8 +24,9 @@ void setup() {
        
     initIR(); // Initialize IR receiver
 
-    // Start Access Point for configuration
-    startAccessPoint();
+    // Handle Wi-Fi connection, if stored, or fallback
+    connectToStoredWiFiOrFallback();
+
 
     // Initialize the web server
     initWebServer();

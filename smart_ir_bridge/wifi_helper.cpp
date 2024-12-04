@@ -1,8 +1,10 @@
 // wifi_helper.cpp
 
 #include "wifi_helper.h"
+#include "wifi_credentials_storer.h"
 #include "light_control.h"
 #include "globals.h"
+#include <WiFi.h>
 
 extern LightControl light;          // Reference to the LightControl object
 extern volatile bool wifiScanning;  // Reference to the wifiScanning flag
@@ -84,16 +86,21 @@ static String formatWiFiScanResults(int networkCount) {
 String scanAndPrintWiFiNetworks() {
     Serial.println("Scanning for Wi-Fi networks...");
 
+    
     // Changed to handle AP and Wi-Fi scanning at the same time
     // WiFi.scanNetworks(show_hidden, scan_duplicates), so those are set to false
-    int networkCount = WiFi.scanNetworks(false, false);
+    int networkCount = WiFi.scanNetworks(false, false); 
     Serial.print("Number of networks found: ");
     Serial.println(networkCount);
 
-    // Format scan results into HTML options
-    String scanResults = formatWiFiScanResults(networkCount);
+    String scanResults = "";
+    for (int i = 0; i < networkCount; i++) {
+        scanResults += "<option value=\"" + WiFi.SSID(i) + "\">";
+        scanResults += WiFi.SSID(i) + " (" + String(WiFi.RSSI(i)) + " dBm)";
+        scanResults += "</option>";
+    }
 
-    WiFi.scanDelete(); // Clear scan results
+    WiFi.scanDelete();
     return scanResults.isEmpty() ? "<option>No networks found</option>" : scanResults;
 }
 
@@ -123,4 +130,34 @@ void startAccessPoint() {
     Serial.println(apPassword);
     Serial.print("IP Address: ");
     Serial.println(WiFi.softAPIP());
+}
+
+// conects to stored credentials if any
+void connectToStoredWiFiOrFallback() {
+    if (areWiFiCredentialsStored()) {
+        Serial.println("Stored Wi-Fi credentials found. Attempting to connect...");
+        String ssid, password;
+        loadWiFiCredentials(ssid, password);
+
+        WiFi.begin(ssid.c_str(), password.c_str());
+
+        int timeout = 20; // 10 seconds
+        while (WiFi.status() != WL_CONNECTED && timeout > 0) {
+            delay(500);
+            Serial.print(".");
+            timeout--;
+        }
+
+        if (WiFi.status() == WL_CONNECTED) {
+            Serial.println("\nWi-Fi connected successfully!");
+            Serial.print("IP Address: ");
+            Serial.println(WiFi.localIP());
+        } else {
+            Serial.println("\nFailed to connect to stored Wi-Fi credentials.");
+            startAccessPoint(); // Fallback to AP mode
+        }
+    } else {
+        Serial.println("No stored Wi-Fi credentials found. Starting Access Point...");
+        startAccessPoint();
+    }
 }

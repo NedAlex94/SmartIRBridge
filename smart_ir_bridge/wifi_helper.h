@@ -17,5 +17,7 @@ void startWiFiScanTask();
 // Start an access point
 void startAccessPoint();
 
+void connectToStoredWiFiOrFallback();
+
 
 #endif // WIFI_HELPER_H
