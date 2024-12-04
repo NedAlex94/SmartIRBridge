@@ -17,14 +17,20 @@ void initWebServer() {
     server.on("/", HTTP_GET, []() {
         String html = index_html;
         String content = step1_content;
-        // No scan results available yet so we hide the scan results section
-        content.replace("%DISPLAY%", "none");
-        content.replace("%OPTIONS%", "");
+        
+        // Determine Wi-Fi connection status and display message
+        String connectionStatus;
+        if (WiFi.isConnected()) {
+            connectionStatus = "Connected to: " + WiFi.SSID() + "<br>IP Address: " + WiFi.localIP().toString();
+        } else {
+            connectionStatus = "Not connected to any Wi-Fi network.";
+        }
+
+        content.replace("%CONNECTION_STATUS%", connectionStatus);
+        content.replace("%DISPLAY%", "none"); // No scan results available yet
+        content.replace("%OPTIONS%", "");     // Empty options initially
         html.replace("%CONTENT%", content);
         server.send(200, "text/html", html);
-          
-        server.send(200, "text/plain", "MQTT settings received (not yet processed).");
-
     });
 
     // Define the scan page. This will be improved in the future because it can be clunky.
@@ -32,7 +38,17 @@ void initWebServer() {
         String scanResults = scanAndPrintWiFiNetworks(); // Call the helper function in wifi_helper.cpp
         String html = index_html; 
         String content = step1_content;
-        content.replace("%DISPLAY%", "block");
+
+        // Determine Wi-Fi connection status and display message
+        String connectionStatus;
+        if (WiFi.isConnected()) {
+            connectionStatus = "Connected to: " + WiFi.SSID() + "<br>IP Address: " + WiFi.localIP().toString();
+        } else {
+            connectionStatus = "Not connected to any Wi-Fi network.";
+        }
+
+        content.replace("%CONNECTION_STATUS%", connectionStatus);
+        content.replace("%DISPLAY%", "block"); // Show scan results section
         content.replace("%OPTIONS%", scanResults);
         html.replace("%CONTENT%", content);
         server.send(200, "text/html", html);
@@ -65,7 +81,17 @@ void initWebServer() {
             WiFi.softAPdisconnect(true); // Turn off the Access Point
             WiFi.mode(WIFI_STA);         // Switch to station mode only
 
-            server.send(200, "text/plain", "Wi-Fi connected successfully. IP: " + WiFi.localIP().toString());
+            String html = index_html;
+            String content = step1_content;
+
+            // Update connection status
+            String connectionStatus = "Connected to: " + WiFi.SSID() + "<br>IP Address: " + WiFi.localIP().toString();
+            content.replace("%CONNECTION_STATUS%", connectionStatus);
+            content.replace("%DISPLAY%", "none");
+            content.replace("%OPTIONS%", "");
+            html.replace("%CONTENT%", content);
+            server.send(200, "text/html", html);
+
         } else {
             Serial.println("\nFailed to connect to Wi-Fi.");
             server.send(500, "text/plain", "Failed to connect to Wi-Fi. Please try again.");

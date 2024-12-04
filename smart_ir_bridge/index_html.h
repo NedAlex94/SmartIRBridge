@@ -33,6 +33,11 @@ const char index_html[] PROGMEM = R"rawliteral(
 const char step1_content[] PROGMEM = R"rawliteral(
 <h2>Step 1: WiFi Connection</h2>
 
+<!-- Connection Status -->
+<div id="connection-status">
+    %CONNECTION_STATUS%
+</div>
+
 <form method="POST" action="/scan">
     <button type="submit">Scan Wi-Fi</button>
 </form>
